@@ -1,13 +1,12 @@
 'use server';
 
-import { createLoginSession } from '@/lib/login/manage-login';
-import { verifyPassword } from '@/lib/login/password-hashing';
+import { LoginSchema } from '@/lib/login/schemas';
 import { asyncDelay } from '@/utils/async-delay';
-import { redirect } from 'next/navigation';
+import { getZodErrorMessages } from '@/utils/get-zod-error-messages';
 
 type LoginActionState = {
-  username: string;
-  error: string;
+  email: string;
+  errors: string[];
 };
 
 export async function loginAction(state: LoginActionState, formData: FormData) {
@@ -15,8 +14,8 @@ export async function loginAction(state: LoginActionState, formData: FormData) {
 
   if (!allowLogin) {
     return {
-      username: '',
-      error: 'Login not allowed',
+      email: '',
+      errors: ['Login not allowed'],
     };
   }
 
@@ -24,36 +23,28 @@ export async function loginAction(state: LoginActionState, formData: FormData) {
 
   if (!(formData instanceof FormData)) {
     return {
-      username: '',
-      error: 'Dados inválidos',
+      email: '',
+      errors: ['Dados inválidos'],
     };
   }
 
-  // Dados que o usuário digitou no form
-  const username = formData.get('username')?.toString().trim() || '';
-  const password = formData.get('password')?.toString().trim() || '';
+  // Validar
+  const formObj = Object.fromEntries(formData.entries());
+  const formEmail = formObj?.email?.toString() || '';
+  const parsedFormData = LoginSchema.safeParse(formObj);
 
-  if (!username || !password) {
+  if (!parsedFormData.success) {
     return {
-      username,
-      error: 'Digite o usuário e a senha',
+      email: formEmail,
+      errors: getZodErrorMessages(parsedFormData.error.format()),
     };
   }
 
-  // Aqui eu checaria se o usuário existe na base de dados
-  const isUsernameValid = username === process.env.LOGIN_USER;
-  const isPasswordValid = await verifyPassword(
-    password,
-    process.env.LOGIN_PASS || '',
-  );
+  return {
+    email: formEmail,
+    errors: ['Succes'],
+  };
 
-  if (!isUsernameValid || !isPasswordValid) {
-    return {
-      username,
-      error: 'Usuário ou senha inválidos',
-    };
-  }
-
-  await createLoginSession(username);
-  redirect('/admin/post');
+  // await createLoginSession(email);
+  // redirect('/admin/post');
 }
