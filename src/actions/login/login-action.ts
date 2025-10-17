@@ -1,8 +1,11 @@
 'use server';
 
+import { createLoginSessionFromApi } from '@/lib/login/manage-login';
 import { LoginSchema } from '@/lib/login/schemas';
+import { apiRequest } from '@/utils/api-request';
 import { asyncDelay } from '@/utils/async-delay';
 import { getZodErrorMessages } from '@/utils/get-zod-error-messages';
+import { redirect } from 'next/navigation';
 
 type LoginActionState = {
   email: string;
@@ -40,11 +43,27 @@ export async function loginAction(state: LoginActionState, formData: FormData) {
     };
   }
 
-  return {
-    email: formEmail,
-    errors: ['Succes'],
-  };
+  // Fetch
+  const loginResponse = await apiRequest<{ accessToken: string }>(
+    '/auth/login',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(parsedFormData.data),
+    },
+  );
 
-  // await createLoginSession(email);
-  // redirect('/admin/post');
+  if (!loginResponse.success) {
+    return {
+      email: formEmail,
+      errors: loginResponse.errors,
+    };
+  }
+
+  console.log(loginResponse.data);
+
+  await createLoginSessionFromApi(loginResponse.data.accessToken);
+  redirect('/admin/post');
 }
