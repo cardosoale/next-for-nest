@@ -11,16 +11,15 @@ import { useActionState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 export function LoginForm() {
-  const router = useRouter();
-  const searchparams = useSearchParams();
-  const userChanged = searchparams.get('userChanged');
-  const created = searchparams.get('created');
-
   const initialState = {
     email: '',
     errors: [],
   };
   const [state, action, isPending] = useActionState(loginAction, initialState);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const userChanged = searchParams.get('userChanged');
+  const created = searchParams.get('created');
 
   useEffect(() => {
     if (state.errors.length > 0) {
@@ -32,7 +31,7 @@ export function LoginForm() {
   useEffect(() => {
     if (userChanged === '1') {
       toast.dismiss();
-      toast.success('Dados atualizados com sucesso. Por favor, faça login.');
+      toast.success('Seu usuário foi modificado. Faça login novamente.');
       const url = new URL(window.location.href);
       url.searchParams.delete('userChanged');
       router.replace(url.toString());
@@ -40,7 +39,7 @@ export function LoginForm() {
 
     if (created === '1') {
       toast.dismiss();
-      toast.success('Conta criada com sucesso. Por favor, faça login.');
+      toast.success('Seu usuário criado.');
       const url = new URL(window.location.href);
       url.searchParams.delete('created');
       router.replace(url.toString());

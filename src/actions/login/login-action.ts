@@ -62,8 +62,6 @@ export async function loginAction(state: LoginActionState, formData: FormData) {
     };
   }
 
-  console.log(loginResponse.data);
-
   await createLoginSessionFromApi(loginResponse.data.accessToken);
   redirect('/admin/post');
 }

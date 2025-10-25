@@ -58,6 +58,7 @@ export async function getLoginSession() {
 
 export async function getLoginSessionForApi() {
   const cookieStore = await cookies();
+
   const jwt = cookieStore.get(loginCookieName)?.value;
 
   if (!jwt) return false;

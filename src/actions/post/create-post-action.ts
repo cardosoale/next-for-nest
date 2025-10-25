@@ -2,7 +2,7 @@
 
 import { getLoginSessionForApi } from '@/lib/login/manage-login';
 import {
-  PostCreateSchema,
+  CreatePostForApiSchema,
   PublicPostForApiDto,
   PublicPostForApiSchema,
 } from '@/lib/post/schemas';
@@ -31,7 +31,7 @@ export async function createPostAction(
   }
 
   const formDataToObj = Object.fromEntries(formData.entries());
-  const zodParsedObj = PostCreateSchema.safeParse(formDataToObj);
+  const zodParsedObj = CreatePostForApiSchema.safeParse(formDataToObj);
 
   if (!isAuthenticated) {
     return {
@@ -51,11 +51,11 @@ export async function createPostAction(
   const newPost = zodParsedObj.data;
 
   const createPostResponse = await authenticatedApiRequest<PublicPostForApiDto>(
-    '/post/me',
+    `/post/me`,
     {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json,',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(newPost),
     },

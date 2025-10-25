@@ -65,8 +65,8 @@ export const PublicPostForApiSchema = PostBaseSchema.extend({
   excerpt: z.string().default(''),
   author: PublicUserSchema.optional().default({
     id: '',
-    name: '',
     email: '',
+    name: '',
   }),
   content: z.string().default(''),
   coverImageUrl: z.string().default(''),

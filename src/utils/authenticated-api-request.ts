@@ -1,9 +1,9 @@
 import 'server-only';
-import { apiRequest, ApiRequest } from './api-request';
 import { getLoginSessionForApi } from '@/lib/login/manage-login';
+import { ApiRequest, apiRequest } from './api-request';
 
 export async function authenticatedApiRequest<T>(
-  url: string,
+  path: string,
   options?: RequestInit,
 ): Promise<ApiRequest<T>> {
   const jwtToken = await getLoginSessionForApi();
@@ -21,7 +21,7 @@ export async function authenticatedApiRequest<T>(
     Authorization: `Bearer ${jwtToken}`,
   };
 
-  return apiRequest<T>(url, {
+  return apiRequest<T>(path, {
     ...options,
     headers,
   });
